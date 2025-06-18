@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Steam Free Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f0f2f5; padding-top: 20px; }
+        .card { margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .badge { font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1 class="my-4">Steam Free Tracker</h1>
+    
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5 class="card-title">Бесплатные игры</h5>
+                    <p class="card-text display-4">{{ stats.games }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title">Бесплатные предметы</h5>
+                    <p class="card-text display-4">{{ stats.items }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header bg-dark text-white">Настройки трекера</div>
+        <div class="card-body">
+            <form method="POST" action="/update">
+                <div class="mb-3">
+                    <label class="form-label">Discord Webhook URL:</label>
+                    <input type="url" class="form-control" name="webhook_url" 
+                           value="{{ settings.webhook_url if settings else '' }}" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">Интервал проверки (минут):</label>
+                    <input type="number" class="form-control" name="check_interval" 
+                           min="5" max="1440" value="{{ settings.check_interval if settings else 10 }}">
+                </div>
+                
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" name="is_active" id="is_active" 
+                           {{ 'checked' if settings and settings.is_active }}>
+                    <label class="form-check-label" for="is_active">Активный мониторинг</label>
+                </div>
+                
+                <button type="submit" class="btn btn-dark">Сохранить настройки</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header bg-secondary text-white">Последние находки</div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Тип</th>
+                            <th>Название</th>
+                            <th>Дата</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in history %}
+                        <tr>
+                            <td>
+                                {% if item.item_type == 'game' %}
+                                    <span class="badge bg-success">Игра</span>
+                                {% else %}
+                                    <span class="badge bg-primary">Предмет</span>
+                                {% endif %}
+                            </td>
+                            <td><a href="{{ item.url }}" target="_blank">{{ item.title }}</a></td>
+                            <td>{{ item.timestamp.strftime('%d.%m.%Y %H:%M') }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3" class="text-center">Еще ничего не найдено</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

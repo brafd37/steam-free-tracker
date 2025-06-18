@@ -1,0 +1,6 @@
+flask
+flask-sqlalchemy
+apscheduler
+requests
+beautifulsoup4
+gunicorn
