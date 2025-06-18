@@ -24,9 +24,6 @@ class History(db.Model):
     url = db.Column(db.String(200))
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
-with app.app_context():
-    db.create_all()
-
 scheduler = BackgroundScheduler()
 sent_items = set()
 
@@ -130,12 +127,12 @@ def restart_scheduler(settings):
             id='steam_check'
         )
 
-if not scheduler.running:
-    scheduler.start()
-    settings = Settings.query.first()
-    if settings and settings.is_active:
-        restart_scheduler(settings)
-    atexit.register(lambda: scheduler.shutdown())
+with app.app_context():
+    db.create_all()
 
-if __name__ == '__main__':
-    app.run()
+    if not scheduler.running:
+        scheduler.start()
+        settings = Settings.query.first()
+        if settings and settings.is_active:
+            restart_scheduler(settings)
+        atexit.register(lambda: scheduler.shutdown())
